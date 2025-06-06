@@ -27,5 +27,7 @@ COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 EXPOSE 42069
+# Symlink collection.json so it's web-accessible
+RUN ln -s /data/collection.json /app/collection.json
 
 CMD ["/app/start.sh"]
