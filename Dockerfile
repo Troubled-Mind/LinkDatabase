@@ -24,4 +24,11 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 42069
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/bin/sh", "-c", "\
+  if [ ! -f /data/collection.json ]; then \
+    echo '📦 collection.json not found, running initial export...'; \
+    python /app/data/rclone_link_exporter.py; \
+  else \
+    echo '✅ collection.json exists'; \
+  fi && \
+  exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
