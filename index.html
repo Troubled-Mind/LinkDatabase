@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-mdb-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Encora GDrive Collection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.0/mdb.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    #selectionSummary {
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #444;
+      padding: 0.5rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+    .copied {
+      background-color: #4caf50 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="mb-4">🎭 Encora GDrive Collection</h2>
+
+    <div class="container my-4">
+      <div class="input-group mb-3">
+        <span class="input-group-text bg-dark text-white">🔍</span>
+        <input type="text" id="searchInput" class="form-control" placeholder="Search recordings...">
+        <button id="copySelectedBtn" class="btn btn-success">Copy Selected</button>
+      </div>
+
+      <div id="selectionSummary" class="bg-dark text-white"></div>
+    </div>
+
+    <table class="table table-hover align-middle text-white" id="collectionTable">
+      <thead>
+        <tr>
+          <th scope="col"><input type="checkbox" id="selectAll" /></th>
+          <th scope="col">Show</th>
+          <th scope="col">Tour</th>
+          <th scope="col">Date</th>
+          <th scope="col">Master</th>
+          <th scope="col">Encora</th>
+          <th scope="col">Link</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.0/mdb.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

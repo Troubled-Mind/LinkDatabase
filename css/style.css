@@ -1,0 +1,18 @@
+.container {
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+.encora-button {
+    padding: 0px !important;
+}
+.copy-btn.copied {
+  background-color: #4caf50 !important; /* subtle green */
+  border-color: #4caf50 !important;
+}
+
+#selectionSummary {
+  font-family: monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
