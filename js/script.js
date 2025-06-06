@@ -57,7 +57,7 @@ function updateSelectionSummary(dataMap) {
 }
 
 
-fetch('data/collection.json')
+fetch('/collection.json')
   .then(res => res.json())
   .then(data => {
     const tableBody = document.querySelector('#collectionTable tbody');
