@@ -24,16 +24,21 @@ def fetch_gdrive_links(remote=remote, output_dir=output_dir):
         collection = json.load(f)
 
     result = subprocess.run([
-        "rclone", "lsjson", "--config", rclone_config, "--recursive", f"{remote}:"
+        "rclone", "lsjson", "--config", rclone_config, "--recursive", f"{remote}"
     ], stdout=subprocess.PIPE, check=True)
     items = json.loads(result.stdout.decode("utf-8"))
     print(f"📦 Total items fetched from rclone: {len(items)}")
 
-    e_pattern = re.compile(r"\\{e-(\\d+)}")
-    ne_pattern = re.compile(r"\\{ne}")
+    # Save raw output for inspection
+    with open(os.path.join(output_dir, "gdrive.json"), "w", encoding="utf-8") as f:
+        json.dump(items, f, indent=2, ensure_ascii=False)
+
+    e_pattern = re.compile(r"\{e-(\d+)}")
+    ne_pattern = re.compile(r"\{ne}")
 
     link_map = {}
     ne_entries = []
+    unmatched_dirs = []
 
     for item in items:
         if item.get("IsDir"):
@@ -53,9 +58,12 @@ def fetch_gdrive_links(remote=remote, output_dir=output_dir):
                     "source_path": item["Path"],
                     "source_folder": folder_name
                 })
+            else:
+                unmatched_dirs.append(folder_name)
 
     print(f"🔗 Matched {len(link_map)} GDrive links")
     print(f"🆕 Found {len(ne_entries)} {{ne}} folders")
+    print(f"❓ Ignored {len(unmatched_dirs)} folders without valid patterns")
 
     updated = 0
     for item in collection:
