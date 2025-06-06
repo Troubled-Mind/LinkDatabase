@@ -27,7 +27,7 @@ EXPOSE 42069
 CMD ["/bin/sh", "-c", "\
   if [ ! -f /data/collection.json ]; then \
     echo '📦 collection.json not found, running initial export...'; \
-    python /app/data/rclone_link_exporter.py; \
+    python /app/rclone_link_exporter.py; \
   else \
     echo '✅ collection.json exists'; \
   fi && \
