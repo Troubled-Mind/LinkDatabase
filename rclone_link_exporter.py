@@ -36,7 +36,14 @@ def fetch_gdrive_links(remote=remote, output_dir=output_dir):
     e_pattern = re.compile(r"\{e-(\d+)}")
     ne_pattern = re.compile(r"\{ne}")
 
+    checksum_dirs = {
+        os.path.dirname(item["Path"])
+        for item in items
+        if not item.get("IsDir") and item.get("Name") == "Checksums.b2"
+    }
+
     link_map = {}
+    checksum_map = {}
     ne_entries = []
     unmatched_dirs = []
 
@@ -44,7 +51,9 @@ def fetch_gdrive_links(remote=remote, output_dir=output_dir):
         if item.get("IsDir"):
             folder_name = item["Name"]
             folder_id = item["ID"]
+            folder_path = item["Path"]
             url = f"https://drive.google.com/drive/folders/{folder_id}"
+            has_checksums = folder_path in checksum_dirs
 
             e_match = e_pattern.search(folder_name)
             ne_match = ne_pattern.search(folder_name)
@@ -52,16 +61,19 @@ def fetch_gdrive_links(remote=remote, output_dir=output_dir):
             if e_match:
                 encora_id = int(e_match.group(1))
                 link_map[encora_id] = url
+                checksum_map[encora_id] = has_checksums
             elif ne_match:
                 ne_entries.append({
                     "share_link": url,
-                    "source_path": item["Path"],
-                    "source_folder": folder_name
+                    "source_path": folder_path,
+                    "source_folder": folder_name,
+                    "has_checksums": has_checksums
                 })
             else:
                 unmatched_dirs.append(folder_name)
 
     print(f"🔗 Matched {len(link_map)} GDrive links")
+    print(f"🛡️  {sum(checksum_map.values())} recordings include Checksums.b2")
     print(f"🆕 Found {len(ne_entries)} {{ne}} folders")
     print(f"❓ Ignored {len(unmatched_dirs)} folders without valid patterns")
 
@@ -70,6 +82,7 @@ def fetch_gdrive_links(remote=remote, output_dir=output_dir):
         recording_id = item.get("recording", {}).get("id")
         if recording_id in link_map:
             item["share_link"] = link_map[recording_id]
+            item["has_checksums"] = checksum_map.get(recording_id, False)
             updated += 1
 
     print(f"✅ Injected share_link into {updated} recordings")
@@ -79,7 +92,8 @@ def fetch_gdrive_links(remote=remote, output_dir=output_dir):
             "recording": None,
             "share_link": ne_item["share_link"],
             "source_path": ne_item["source_path"],
-            "source_folder": ne_item["source_folder"]
+            "source_folder": ne_item["source_folder"],
+            "has_checksums": ne_item["has_checksums"]
         })
 
     with open(collection_path, "w", encoding="utf-8") as f:

@@ -30,6 +30,23 @@ function formatDate(dateObj) {
   return formatted;
 }
 
+function verifyNote(hasChecksums) {
+  return hasChecksums
+    ? '\nVerify after download: b2sum -c "Checksums.b2" (Windows: see /verify_checksums.py)'
+    : '';
+}
+
+document.getElementById('copyVerifyCmdBtn')?.addEventListener('click', () => {
+  const cmdInput = document.getElementById('verifyCmd');
+  const copyBtn = document.getElementById('copyVerifyCmdBtn');
+  navigator.clipboard.writeText(cmdInput.value).then(() => {
+    copyBtn.innerHTML = "<i class='fas fa-check'></i>";
+    setTimeout(() => {
+      copyBtn.innerHTML = "<i class='fas fa-copy'></i>";
+    }, 1500);
+  });
+});
+
 function updateSelectionSummary(dataMap) {
   const container = document.getElementById('selectionSummary');
   if (dataMap.size === 0) {
@@ -112,6 +129,10 @@ fetch('/collection.json')
         const link = entry.share_link || '';
         const source = entry.source_path || '';
         const folder = entry.source_folder || '';
+        const hasChecksums = Boolean(entry.has_checksums);
+        const verifyCell = hasChecksums
+          ? '<td><span class="badge bg-success" title="Includes Checksums.b2 -- verify after download"><i class="fas fa-shield-halved"></i></span></td>'
+          : '<td class="text-muted">&mdash;</td>';
 
         const isEncora = Boolean(id);
         const displayText = [id, show, tour, date, master, link, source].join(' ').toLowerCase();
@@ -126,10 +147,12 @@ fetch('/collection.json')
             <td><input type="checkbox" class="row-select" data-key="${uniqueKey}"></td>
             <td colspan="4" class="fst-italic text-muted">${source}</td>
             <td></td>
+            ${verifyCell}
             <td>
               <button class="btn btn-primary btn-sm copy-btn" 
                 data-link="${link}"
                 data-folder="${folder}"
+                data-checksums="${hasChecksums}"
                 data-id="ne">
                 <i class="fas fa-copy"></i>
               </button>
@@ -147,6 +170,7 @@ fetch('/collection.json')
                 <img src="img/encora.png" alt="Encora" style="width:20px; height:20px;" />
               </a>
             </td>
+            ${verifyCell}
             <td>
               <button class="btn btn-primary btn-sm copy-btn" 
                 data-link="${link}"
@@ -154,6 +178,7 @@ fetch('/collection.json')
                 data-tour="${tour}"
                 data-date="${date}"
                 data-master="${master}"
+                data-checksums="${hasChecksums}"
                 data-id="${id}">
                 <i class="fas fa-copy"></i>
               </button>
@@ -181,10 +206,11 @@ fetch('/collection.json')
         btn.addEventListener('click', () => {
           const id = btn.dataset.id;
           let text = '';
+          const checksums = btn.dataset.checksums === 'true';
           if (id === 'ne') {
             const folder = btn.dataset.folder;
             const link = btn.dataset.link;
-            text = `${folder}\n${link}`;
+            text = `${folder}\n${link}${verifyNote(checksums)}`;
           } else {
             const show = btn.dataset.show;
             const tour = btn.dataset.tour;
@@ -192,7 +218,7 @@ fetch('/collection.json')
             const master = btn.dataset.master;
             const link = btn.dataset.link;
             const encoraLink = `https://encora.it/recordings/${id}`;
-            text = `${show} - ${tour}\n${date} - ${master}\n${link}\n${encoraLink}`;
+            text = `${show} - ${tour}\n${date} - ${master}\n${link}\n${encoraLink}${verifyNote(checksums)}`;
           }
 
           navigator.clipboard.writeText(text).then(() => {
@@ -228,10 +254,11 @@ fetch('/collection.json')
       const lines = Array.from(selectedLinks.values()).map(row => {
         const btn = row.querySelector('.copy-btn');
         const id = btn?.dataset.id;
+        const checksums = btn?.dataset.checksums === 'true';
         if (id === 'ne') {
           const folder = btn.dataset.folder;
           const link = btn.dataset.link;
-          return `${folder}\n${link}`;
+          return `${folder}\n${link}${verifyNote(checksums)}`;
         } else {
           const show = btn.dataset.show;
           const tour = btn.dataset.tour;
@@ -239,7 +266,7 @@ fetch('/collection.json')
           const master = btn.dataset.master;
           const link = btn.dataset.link;
           const encoraLink = `https://encora.it/recordings/${id}`;
-          return `${show} - ${tour}\n${date} - ${master}\n${link}\n${encoraLink}`;
+          return `${show} - ${tour}\n${date} - ${master}\n${link}\n${encoraLink}${verifyNote(checksums)}`;
         }
       });
 
